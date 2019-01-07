@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+<meta HTTP-EQUIV="Expires" CONTENT="0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<!--<script type="text/javascript" src="MobileAPI.js"></script>-->
+
+<style>
+body{
+ margin:0px;
+ padding:0px;
+}
+.d1{
+position:absolute; 
+ left:0px;
+ top:0px; 
+ width:100%; 
+ height:100%;
+ z-index:-1;
+}
+</style>
+<title>华发</title>
+
+<script>
+    var G = {};
+    function a(auth) { G=auth; alert(JSON.stringify(G));}
+    
+    
+    function iosQRScanResult(x){
+        document.getElementById("p1").innerHTML=x;
+    }
+
+    function sendMemberPknos(){
+        document.getElementById("p1").innerHTML='222222222';
+    }
+function copyText()
+	{
+                                                // 1.埋点 trackWebData
+        // 2.收银台
+        // 3.分享 hfShare
+        // @"https://devapp.huafatech.com/mall/index.html";
+<!--        App.call("trackWebData","02","0202-","123455");-->
+<!--        window.location.href = "http:\\www.baidu.com";-->
+
+
+        window.webkit.messageHandlers.QRScan.postMessage({});
+        
+	}
+</script>
+
+</head>
+<body>
+    <button onclick="copyText()">点!!!!!!!!!!!!!!!!!!!击</button>
+    <p id="p1">Hello World!</p>
+
+
+</body>
+
+</html>
+
