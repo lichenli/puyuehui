@@ -10,6 +10,8 @@
 #import <WebKit/WebKit.h>
 #import "ScanViewController.h"
 #import "WKDelegateController.h"
+#import "FCImageHelper.h"
+
 
 #define screenWidth [UIScreen mainScreen].bounds.size.width
 #define screenHeight [UIScreen mainScreen].bounds.size.height
@@ -19,13 +21,14 @@
 #define iphone5   (screenHeight == 568.0)
 #define iphone4   (screenHeight == 480.0)
 
-@interface HFUBusinessWebViewController ()<WKNavigationDelegate ,UINavigationControllerDelegate,SendScanDataDelegate,WKDelegate,WKScriptMessageHandler>
+@interface HFUBusinessWebViewController ()<WKNavigationDelegate ,UINavigationControllerDelegate,SendScanDataDelegate,WKDelegate,WKScriptMessageHandler,FCImageHelperDelegate>
 {
     WKWebView * webView;
     WKUserContentController* userContentController;
+    FCImageHelper *_imageHelper;
 }
-@property (nonatomic, strong) UIProgressView *progressView;
-
+@property (nonatomic, strong)UIProgressView *progressView;
+@property (nonatomic, strong)NSString *tokenStr;
 
 @end
 
@@ -65,6 +68,8 @@
 //    }];
 //    NSLog(@"新h5页面请求地址：%@",self.url);
     NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
+//    NSString *path = [[NSBundle mainBundle] pathForResource:@"talkingdata" ofType:@"html"];
+
 
     NSURL *fileURL = [NSURL fileURLWithPath:path];
     [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
@@ -107,7 +112,7 @@
     NSLog(@"122323233    %@",scanDatas);
     if(scanDatas && scanDatas.length>0){
         // 将扫描结果返回给js
-        NSString *jsStr = [NSString stringWithFormat:@"iosQRScanResult('%@')",scanDatas];
+        NSString *jsStr = [NSString stringWithFormat:@"setQRCode('%@')",scanDatas];
         [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
             NSLog(@"%@----%@",result, error);
         }];
@@ -214,23 +219,61 @@
     if ([urlComps count]) {
         // 获取协议头
         NSString *protocolHead = [urlComps objectAtIndex:0];
-        NSLog(@"protocolHead=%@",protocolHead);
+//        NSLog(@"protocolHead=%@",protocolHead);
     }
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message{
     //找到对应js端的方法名,获取messge.body
-    NSLog(@"%@ %@",message.body,message.name);
+//    NSLog(@"%@ %@",message.body,message.name);
     if ([message.name isEqualToString:@"QRScan"]) {
         [self gotoScan];
+    }else if ([message.name isEqualToString:@"ImageUpload"]){
+        
+        NSDictionary * dic = (NSDictionary*)message.body;
+        if ([dic objectForKey:@"token"]) {
+            NSString * token = [dic objectForKey:@"token"];
+            NSLog(@"token: %@",token);
+            
+            // 获取token 打开相册
+            if (token.length >0) {
+                self.tokenStr = token;
+                _imageHelper = [FCImageHelper ImageHelper];
+                _imageHelper.imagePickerDelelgate = self;
+            }
+        }
     }
     
     // 回调
 //    [webView evaluateJavaScript:@"sendMemberPkno" completionHandler:^(id _Nullable item, NSError * _Nullable error) {
 //        NSLog(@"OK");
 //    }];
-    // 将分享结果返回给js
+}
+
+- (void)didFinishPickingImage:(UIImage *)image{
+    NSLog(@"图片获取成功");
+    
+
+    __weak typeof(self) weakSelf = self;
+    // 图片上传
+    [FCImageHelper uploadImgWithImage:image withToken:self.tokenStr success:^(NSString *message, NSString *imgUrlStr) {
+        if (imgUrlStr && imgUrlStr.length>0) {
+            [weakSelf uploadImgUrl:imgUrlStr];
+        }
+        
+    } failure:^(NSError *error) {
+        
+
+    }];
+}
+
+- (void)uploadImgUrl:(NSString *)str
+{
+    NSString *jsStr = [NSString stringWithFormat:@"setImage('%@')",str];
+    [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+        NSLog(@"%@----%@",result, error);
+    }];
 }
 
 /** 清理缓存的方法，这个方法会清除缓存类型为HTML类型的文件*/
