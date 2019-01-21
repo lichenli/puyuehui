@@ -12,7 +12,6 @@
 #import "WKDelegateController.h"
 #import "FCImageHelper.h"
 
-
 #define screenWidth [UIScreen mainScreen].bounds.size.width
 #define screenHeight [UIScreen mainScreen].bounds.size.height
 #define iphoneX   (screenHeight >= 812.0)
@@ -20,6 +19,7 @@
 #define iphone6   (screenHeight == 667.0)
 #define iphone5   (screenHeight == 568.0)
 #define iphone4   (screenHeight == 480.0)
+
 
 @interface HFUBusinessWebViewController ()<WKNavigationDelegate ,UINavigationControllerDelegate,SendScanDataDelegate,WKDelegate,WKScriptMessageHandler,FCImageHelperDelegate>
 {
@@ -29,6 +29,8 @@
 }
 @property (nonatomic, strong)UIProgressView *progressView;
 @property (nonatomic, strong)NSString *tokenStr;
+
+@property (nonatomic, strong)NSString * nexturl;
 
 @end
 
@@ -45,56 +47,71 @@
     WKDelegateController * delegateController = [[WKDelegateController alloc]init];
     delegateController.delegate = self;
     //注册方法
-//    [userContentController addScriptMessageHandler:delegateController  name:@"NativeEnv"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"QRScan"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"ImageUpload"];//注册一个name为NativeEnv的js方法
-
+    
     
     UIImage *image = [UIImage imageNamed:@"bgss"];
     self.view.layer.contents = (id) image.CGImage;    // 如果需要背景透明加上下面这句
     self.view.layer.backgroundColor = [UIColor clearColor].CGColor;
-    
     webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)configuration:configuration];
-    
     webView.frame = CGRectMake(0, 20, screenWidth, screenHeight-20);
     if (iphoneX) {
         webView.frame = CGRectMake(0, 36, screenWidth, screenHeight-50);
     }
     webView.backgroundColor = [UIColor orangeColor];
     webView.navigationDelegate = self;
+    webView.scrollView.bounces = NO;
     [self.view addSubview:webView];
-//    webView.scrollView.mj_header=[HFRefreshHeader headerWithRefreshingBlock:^{
-//        [webView reload];
-//    }];
-//    NSLog(@"新h5页面请求地址：%@",self.url);
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
+
 //    NSString *path = [[NSBundle mainBundle] pathForResource:@"talkingdata" ofType:@"html"];
+    
+    
+//    NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
+//    NSURL *fileURL = [NSURL fileURLWithPath:path];
+//    [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
+    
+    //    self.url = @"http://www.pureyeah.com/?from=singlemessage&isappinstalled=0";
+    //    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.url]]];
+    
+    __weak typeof(self) weakSelf = self;
+    BmobQuery *bquery = [BmobQuery queryWithClassName:@"barm"];
+    [bquery getObjectInBackgroundWithId:@"4KYh222T" block:^(BmobObject *object, NSError *error) {
+        
+        if (error) {
+            [weakSelf startWebView:NO];
+            return ;
+        }
+        if ([object objectForKey:@"tip"]) {
+            NSString *tips = [object objectForKey:@"tip"];
+            if ([tips isEqualToString:@"url"]) {
+                // 1. URL访问
+                [weakSelf startWebView:YES];
 
+            }else{
+                // 1. html访问
+                [weakSelf startWebView:NO];
 
-    NSURL *fileURL = [NSURL fileURLWithPath:path];
-    [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
-    
-//    self.url = @"http://www.pureyeah.cn/?from=singlemessage&isappinstalled=0";
-//    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.url]]];
-    
+            }
+        }else{
+            // 1. html访问
+            [weakSelf startWebView:NO];
 
-    
-    // 加载进度条
-//    self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 1, [[UIScreen mainScreen] bounds].size.width, 0.5)];
-//    //设置进度条的高度，下面这句代码表示进度条的宽度变为原来的1倍，高度变为原来的1.5倍.
-//    self.progressView.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
-//    self.progressView.trackTintColor = [UIColor clearColor];
-//    self.progressView.tintColor = mainColor;
-//    [self.view addSubview:self.progressView];
-//    [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
-    
-//    UIButton * button = [UIButton buttonWithType:UIButtonTypeCustom];
-//    button.frame = CGRectMake(0, 300, 100, 50);
-//    button.backgroundColor = [UIColor grayColor];
-//    [button setTitle:@"扫描" forState:UIControlStateNormal];
-//    [button addTarget:self action:@selector(gotoScan) forControlEvents:UIControlEventTouchUpInside];
-//    [self.view addSubview:button];
-    
+        }
+    }];
+}
+
+- (void)startWebView:(BOOL)isUrl
+{
+    if (isUrl) {
+        NSString *str = [NSString stringWithFormat:@"http://%@/?from=singlemessage&isappinstalled=0",eDomain];
+        self.url = str;
+        [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.url]]];        
+    }else{
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
+        NSURL *fileURL = [NSURL fileURLWithPath:path];
+        [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
+    }
 }
 
 - (void)gotoScan
@@ -109,7 +126,6 @@
  */
 - (void)scanData:(NSString *)scanDatas
 {
-    NSLog(@"122323233    %@",scanDatas);
     if(scanDatas && scanDatas.length>0){
         // 将扫描结果返回给js
         NSString *jsStr = [NSString stringWithFormat:@"setQRCode('%@')",scanDatas];
@@ -164,11 +180,11 @@
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
 //    NSLog(@"开始加载网页");
     //开始加载网页时展示出progressView
-    self.progressView.hidden = NO;
-    //开始加载网页的时候将progressView的Height恢复为1.5倍
-    self.progressView.transform = CGAffineTransformMakeScale(1.0f, 1.5f);
-    //防止progressView被网页挡住
-    [self.view bringSubviewToFront:self.progressView];
+//    self.progressView.hidden = NO;
+//    //开始加载网页的时候将progressView的Height恢复为1.5倍
+//    self.progressView.transform = CGAffineTransformMakeScale(1.0f, 1.5f);
+//    //防止progressView被网页挡住
+//    [self.view bringSubviewToFront:self.progressView];
 }
 
 //加载完成
@@ -177,7 +193,6 @@
     //加载完成后隐藏progressView
     self.progressView.hidden = YES;
 //    [webView.scrollView.mj_header endRefreshing];
-
 }
 
 //加载失败
@@ -194,7 +209,6 @@
 - (void)dealloc {
     NSLog(@"网页页面消失");
     [self clearCache];
-
 //    [webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
@@ -208,34 +222,90 @@
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    NSString * urlstr=navigationAction.request.URL.absoluteString;
-    NSLog(@"当前访问页面  :  %@",urlstr);
     
-    NSString *urlString = [[navigationAction.request URL] absoluteString];
-    urlString = [urlString stringByRemovingPercentEncoding];
-    //    NSLog(@"urlString=%@",urlString);
-    // 用://截取字符串
-    NSArray *urlComps = [urlString componentsSeparatedByString:@"://"];
-    if ([urlComps count]) {
-        // 获取协议头
-        NSString *protocolHead = [urlComps objectAtIndex:0];
-//        NSLog(@"protocolHead=%@",protocolHead);
+    
+    // 1. 支付宝
+    if ([navigationAction.request.URL.absoluteString containsString:@"alipay://"]){// 支付宝
+        decisionHandler(WKNavigationActionPolicyAllow);
+        // 支付宝这里是URLDecode编码了，解码后发现有个参数fromAppUrlScheme：alipays,将alipays换成自己的app URL Scheme
+        NSString *decodedString = [self URLDecodedString:navigationAction.request.URL.absoluteString];
+        if ([decodedString containsString:@"fromAppUrlScheme"]) {
+            // 去掉alipay://alipayclient/?前缀，因为后面编码会导致错误（这里先去掉，编码后在加上）
+            NSString *subStr = [decodedString stringByReplacingOccurrencesOfString:@"alipay://alipayclient/?" withString:@""];
+            // xxxx是自己设置的app URL Scheme
+            NSString *repStr = [subStr stringByReplacingOccurrencesOfString:@"alipays" withString:eDomain];
+            NSString *encodedString = [NSString stringWithFormat:@"alipay://alipayclient/?%@",[self URLEncodedString:repStr]];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:encodedString]];
+        }
+        return;
     }
-    decisionHandler(WKNavigationActionPolicyAllow);
+
+    // 2. 微信
+    
+    NSString * urlstr=navigationAction.request.URL.absoluteString;
+//    NSLog(@"当前访问页面  :  %@",urlstr);
+    NSMutableURLRequest *mutableRequest = [navigationAction.request mutableCopy];
+    NSDictionary *requestHeaders = navigationAction.request.allHTTPHeaderFields;
+    static NSString *endPayRedirectURL = nil;
+    
+    if (requestHeaders[@"Referer"]) {
+        if ([urlstr containsString:@"redirect_url"]) {
+            NSString *redirectUrl = nil;
+            if ([urlstr containsString:@"redirect_url="]) {
+                NSRange redirectRange = [urlstr rangeOfString:@"redirect_url"];
+                endPayRedirectURL =  [urlstr substringFromIndex:redirectRange.location+redirectRange.length+1];
+                redirectUrl = [[urlstr substringToIndex:redirectRange.location] stringByAppendingString:[NSString stringWithFormat:@"redirect_url=%@://",eDomain]];
+                [mutableRequest setURL:[NSURL URLWithString:redirectUrl]];
+            }
+        }
+        decisionHandler(WKNavigationActionPolicyAllow);//允许跳转
+    } else {
+        if ([urlstr containsString:@"https://wx.tenpay.com/cgi-bin/mmpayweb-bin/checkmweb"]) {
+            NSString *redirectUrl = nil;
+            if ([urlstr containsString:@"redirect_url="]) {
+                NSRange redirectRange = [urlstr rangeOfString:@"redirect_url"];
+                endPayRedirectURL =  [urlstr substringFromIndex:redirectRange.location+redirectRange.length+1];
+                NSLog(@"%@",endPayRedirectURL);
+                self.nexturl = endPayRedirectURL;
+                redirectUrl = [[urlstr substringToIndex:redirectRange.location] stringByAppendingString:[NSString stringWithFormat:@"redirect_url=%@://",eDomain]];
+            }
+            [mutableRequest setURL:[NSURL URLWithString:redirectUrl]];
+        }else{
+            NSString * ss = [NSString stringWithFormat:@"%@:",eDomain];
+            if ([urlstr containsString:ss]) {
+                [mutableRequest setURL:[NSURL URLWithString:self.nexturl]];
+                [webView loadRequest:mutableRequest];
+            }
+        }
+        [mutableRequest setValue:eDomain forHTTPHeaderField:@"Referer"];
+        [webView loadRequest:mutableRequest];
+        decisionHandler(WKNavigationActionPolicyAllow);//允许跳转
+    }
+    // H5的微信支付 唤起微信客户端 要执行的操作
+    NSURLRequest *request = navigationAction.request;
+    if ([request.URL.scheme isEqualToString:@"weixin"]) {
+        if ([request.URL.host isEqualToString:@"wap"]) {
+            if ([request.URL.relativePath containsString:@"/pay"]) {
+                NSDictionary * dic =[NSDictionary dictionary];
+                [[UIApplication sharedApplication] openURL:request.URL options:dic completionHandler:^(BOOL success) {
+                }];
+            }
+        }
+//        decisionHandler(WKNavigationActionPolicyAllow);
+        return;
+    }
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message{
     //找到对应js端的方法名,获取messge.body
-//    NSLog(@"%@ %@",message.body,message.name);
+    NSLog(@"%@ %@",message.body,message.name);
     if ([message.name isEqualToString:@"QRScan"]) {
         [self gotoScan];
     }else if ([message.name isEqualToString:@"ImageUpload"]){
-        
         NSDictionary * dic = (NSDictionary*)message.body;
         if ([dic objectForKey:@"token"]) {
             NSString * token = [dic objectForKey:@"token"];
             NSLog(@"token: %@",token);
-            
             // 获取token 打开相册
             if (token.length >0) {
                 self.tokenStr = token;
@@ -244,11 +314,6 @@
             }
         }
     }
-    
-    // 回调
-//    [webView evaluateJavaScript:@"sendMemberPkno" completionHandler:^(id _Nullable item, NSError * _Nullable error) {
-//        NSLog(@"OK");
-//    }];
 }
 
 - (void)didFinishPickingImage:(UIImage *)image{
@@ -323,5 +388,24 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+// 编码
+- (NSString *)URLEncodedString:(NSString *)str{
+    NSString *encodedString = (NSString *)
+    CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                              (CFStringRef)str,
+                                                              NULL,
+                                                              (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                              kCFStringEncodingUTF8));
+    return encodedString;
+}
+
+// 解码
+- (NSString *)URLDecodedString:(NSString *)str{
+    NSString *decodedString=(__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)str, CFSTR(""), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    
+    return decodedString;
+}
+
 
 @end

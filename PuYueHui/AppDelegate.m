@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import <Bugly/Bugly.h>
 
 @interface AppDelegate ()
 
@@ -17,7 +18,22 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    //向微信注册
+//    [WXApi registerApp:@"wxd930ea5d5a258f4f"];
+    // 4.云后台
+    [Bmob registerWithAppKey:@"0849ad8a91a2b8549e5268e5cf77a44d"];
+    // 5.腾讯bugly
+    [Bugly startWithAppId:@"67e329a098"];
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    return  [WXApi handleOpenURL:url delegate:self];
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [WXApi handleOpenURL:url delegate:self];
 }
 
 

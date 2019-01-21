@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		398894AFA3134D7ACFD7DA32 /* libPods-PuYueHui.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FD45857AB903776B69C68E41 /* libPods-PuYueHui.a */; };
+		DB14391521F2C078007C45E4 /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = DB14391421F2C078007C45E4 /* Podfile */; };
 		DB53976121E475F500BE6446 /* UIImage+FC.m in Sources */ = {isa = PBXBuildFile; fileRef = DB53975F21E475F500BE6446 /* UIImage+FC.m */; };
 		DB53976221E475F500BE6446 /* FCImageHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DB53976021E475F500BE6446 /* FCImageHelper.m */; };
 		DB53976521E4763C00BE6446 /* ImageSelectVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DB53976421E4763C00BE6446 /* ImageSelectVC.m */; };
@@ -59,12 +60,14 @@
 /* Begin PBXFileReference section */
 		3C3603029A2A83D739B5CDC7 /* Pods-PuYueHui.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PuYueHui.release.xcconfig"; path = "Pods/Target Support Files/Pods-PuYueHui/Pods-PuYueHui.release.xcconfig"; sourceTree = "<group>"; };
 		40DF3C9D9CD86607A91B87D0 /* Pods-PuYueHui.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PuYueHui.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PuYueHui/Pods-PuYueHui.debug.xcconfig"; sourceTree = "<group>"; };
+		DB14391421F2C078007C45E4 /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		DB53975D21E475F500BE6446 /* UIImage+FC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+FC.h"; sourceTree = "<group>"; };
 		DB53975E21E475F500BE6446 /* FCImageHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FCImageHelper.h; sourceTree = "<group>"; };
 		DB53975F21E475F500BE6446 /* UIImage+FC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+FC.m"; sourceTree = "<group>"; };
 		DB53976021E475F500BE6446 /* FCImageHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FCImageHelper.m; sourceTree = "<group>"; };
 		DB53976321E4763C00BE6446 /* ImageSelectVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageSelectVC.h; sourceTree = "<group>"; };
 		DB53976421E4763C00BE6446 /* ImageSelectVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImageSelectVC.m; sourceTree = "<group>"; };
+		DB709CA021F5A2BA00CE3C66 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		DBC8D68021DC9AAB000AD110 /* PuYueHui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PuYueHui.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC8D68321DC9AAB000AD110 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DBC8D68421DC9AAB000AD110 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -163,6 +166,7 @@
 		DBC8D67721DC9AAB000AD110 = {
 			isa = PBXGroup;
 			children = (
+				DB14391421F2C078007C45E4 /* Podfile */,
 				DBC8D68221DC9AAB000AD110 /* PuYueHui */,
 				DBC8D69B21DC9AAB000AD110 /* PuYueHuiTests */,
 				DBC8D6A621DC9AAB000AD110 /* PuYueHuiUITests */,
@@ -207,6 +211,7 @@
 				DBC8D68E21DC9AAB000AD110 /* LaunchScreen.storyboard */,
 				DBC8D69121DC9AAB000AD110 /* Info.plist */,
 				DBC8D69221DC9AAB000AD110 /* main.m */,
+				DB709CA021F5A2BA00CE3C66 /* PrefixHeader.pch */,
 			);
 			path = PuYueHui;
 			sourceTree = "<group>";
@@ -399,6 +404,7 @@
 				DBC8D6DA21DCB2AC000AD110 /* scan_line@2x.png in Resources */,
 				DBC8D6C821DC9B69000AD110 /* package.json in Resources */,
 				DBC8D6CB21DC9B69000AD110 /* binaryajax.js in Resources */,
+				DB14391521F2C078007C45E4 /* Podfile in Resources */,
 				DBC8D69021DC9AAB000AD110 /* LaunchScreen.storyboard in Resources */,
 				DBC8D6C721DC9B69000AD110 /* .gitignore in Resources */,
 				DBC8D6DD21DDB739000AD110 /* talkingdata.html in Resources */,
@@ -638,8 +644,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NCA62D563J;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/PuYueHui/PrefixHeader.pch";
 				INFOPLIST_FILE = PuYueHui/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -657,8 +666,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NCA62D563J;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/PuYueHui/PrefixHeader.pch";
 				INFOPLIST_FILE = PuYueHui/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

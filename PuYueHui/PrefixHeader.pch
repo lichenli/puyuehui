@@ -1,0 +1,34 @@
+//
+//  PrefixHeader.pch
+//  PuYueHui
+//
+//  Created by Li Chen on 2019/1/21.
+//  Copyright © 2019 Li Chen. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <BmobSDK/Bmob.h>
+
+
+#define Environment   1   //  0 = QA  |   1 = PRD
+
+
+#if  Environment == 0
+
+
+    #define eDomain  @"www.pureyeah.cn"
+
+
+#elif  Environment == 1
+
+
+   #define eDomain  @"www.pureyeah.com"
+
+
+#endif
+
+
+
+#endif /* PrefixHeader_pch */

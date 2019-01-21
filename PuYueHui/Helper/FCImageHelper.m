@@ -12,7 +12,7 @@
 #import <AFNetworking/AFNetworking.h>
 #import <MBProgressHUD/MBProgressHUD.h>
 
-#define UPLOADMUTILIMAGE_URL @"http://mp.uw88.cn/public/api/attachment"
+#define UPLOADMUTILIMAGE_URL @"http://www.pureyeah.com/public/api/attachment"
 
 #define kPhotoString @"使用摄像头拍摄"
 #define kCarmeraString @"从手机相册选择"
@@ -73,8 +73,9 @@
     NSDictionary *dic = @{
                           @"attachmenType":@"video"
                           };
+    NSString * urlStr = [NSString stringWithFormat:@"http://%@/public/api/attachment",eDomain];
     
-   operation =  [manager POST:UPLOADMUTILIMAGE_URL parameters:dic constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+   operation =  [manager POST:urlStr parameters:dic constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
        
         //把图片转为jpeg格式，同时压缩图片（0.0为最大压缩率，1.0为最小压缩率）
         NSData *imageData = UIImageJPEGRepresentation(image, 0.5);
@@ -152,7 +153,8 @@
     NSLog(@"aafawfet aryy %@",imageArry);
      AFHTTPRequestOperationManager *manager=[AFHTTPRequestOperationManager manager];
     
-    [manager POST:UPLOADMUTILIMAGE_URL parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    NSString * urlStr = [NSString stringWithFormat:@"http://%@/public/api/attachment",eDomain];
+    [manager POST:urlStr parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         
         
         for (int i = 0 ; i < imageArry.count; i ++ ) {
