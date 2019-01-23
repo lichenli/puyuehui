@@ -20,7 +20,7 @@
     // Override point for customization after application launch.
     
     //向微信注册
-//    [WXApi registerApp:@"wxd930ea5d5a258f4f"];
+    [WXApi registerApp:@"wx2903b340ba4f6118"];
     // 4.云后台
     [Bmob registerWithAppKey:@"0849ad8a91a2b8549e5268e5cf77a44d"];
     // 5.腾讯bugly
@@ -28,12 +28,27 @@
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
-    return  [WXApi handleOpenURL:url delegate:self];
-}
+//- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+//    return  [WXApi handleOpenURL:url delegate:self];
+//}
+//
+//- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+//    return [WXApi handleOpenURL:url delegate:self];
+//}
 
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    return [WXApi handleOpenURL:url delegate:self];
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString*, id> *)options{
+    
+    NSString *urlString = url.absoluteString;
+    NSLog(@"*****   %@",urlString);
+//    if ([urlString containsString:@"youlife"]) {
+//        if([urlString containsString:@"openDoor"]){
+//            if ([HFHTTPTool checkcommunityList]) {
+//                return YES;
+//            }
+//            [HFChooseViewControllerHelper goToOpenDoorViewController:@"快捷方式"];
+//        }
+//    }
+    return YES;
 }
 
 

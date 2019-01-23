@@ -11,6 +11,7 @@
 #import "ScanViewController.h"
 #import "WKDelegateController.h"
 #import "FCImageHelper.h"
+#import "WXApi.h"
 
 #define screenWidth [UIScreen mainScreen].bounds.size.width
 #define screenHeight [UIScreen mainScreen].bounds.size.height
@@ -49,7 +50,7 @@
     //注册方法
     [userContentController addScriptMessageHandler:delegateController  name:@"QRScan"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"ImageUpload"];//注册一个name为NativeEnv的js方法
-    
+    [userContentController addScriptMessageHandler:delegateController  name:@"WXshare"];//注册一个name为NativeEnv的js方法
     
     UIImage *image = [UIImage imageNamed:@"bgss"];
     self.view.layer.contents = (id) image.CGImage;    // 如果需要背景透明加上下面这句
@@ -198,6 +199,9 @@
 //加载失败
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     NSLog(@"加载失败");
+//    NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
+//    NSURL *fileURL = [NSURL fileURLWithPath:path];
+//    [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
     //加载失败同样需要隐藏progressView
     self.progressView.hidden = YES;
 //    [webView.scrollView.mj_header endRefreshing];
@@ -226,7 +230,7 @@
     
     // 1. 支付宝
     if ([navigationAction.request.URL.absoluteString containsString:@"alipay://"]){// 支付宝
-        decisionHandler(WKNavigationActionPolicyAllow);
+        decisionHandler(WKNavigationActionPolicyCancel);
         // 支付宝这里是URLDecode编码了，解码后发现有个参数fromAppUrlScheme：alipays,将alipays换成自己的app URL Scheme
         NSString *decodedString = [self URLDecodedString:navigationAction.request.URL.absoluteString];
         if ([decodedString containsString:@"fromAppUrlScheme"]) {
@@ -238,11 +242,36 @@
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:encodedString]];
         }
         return;
+
+    }
+    
+    NSString * urlstr=navigationAction.request.URL.absoluteString;
+    NSLog(@"当前访问页面  :  %@  %lu",[self URLDecodedString:urlstr],(unsigned long)[self URLDecodedString:urlstr].length);
+    // H5的微信支付 唤起微信客户端 要执行的操作
+    NSURLRequest *request = navigationAction.request;
+    if ([request.URL.scheme isEqualToString:@"weixin"]) {
+        if ([request.URL.host isEqualToString:@"wap"]) {
+            if ([request.URL.relativePath containsString:@"/pay"]) {
+//                NSDictionary * dic =[NSDictionary dictionary];
+                [[UIApplication sharedApplication] openURL:request.URL];
+            }
+        }
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }else if([urlstr containsString:@"www.pureyeah.com://"] && urlstr.length ==19){
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [webView goBack];
+        return;
+        
+    }else if([urlstr containsString:@"about:blank"] && urlstr.length ==11){
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [webView goBack];
+        return;
     }
 
     // 2. 微信
     
-    NSString * urlstr=navigationAction.request.URL.absoluteString;
+//    NSString * urlstr=navigationAction.request.URL.absoluteString;
 //    NSLog(@"当前访问页面  :  %@",urlstr);
     NSMutableURLRequest *mutableRequest = [navigationAction.request mutableCopy];
     NSDictionary *requestHeaders = navigationAction.request.allHTTPHeaderFields;
@@ -255,6 +284,7 @@
                 NSRange redirectRange = [urlstr rangeOfString:@"redirect_url"];
                 endPayRedirectURL =  [urlstr substringFromIndex:redirectRange.location+redirectRange.length+1];
                 redirectUrl = [[urlstr substringToIndex:redirectRange.location] stringByAppendingString:[NSString stringWithFormat:@"redirect_url=%@://",eDomain]];
+                NSLog(@"333333 %@",redirectUrl);
                 [mutableRequest setURL:[NSURL URLWithString:redirectUrl]];
             }
         }
@@ -269,6 +299,7 @@
                 self.nexturl = endPayRedirectURL;
                 redirectUrl = [[urlstr substringToIndex:redirectRange.location] stringByAppendingString:[NSString stringWithFormat:@"redirect_url=%@://",eDomain]];
             }
+            NSLog(@"222222 %@",redirectUrl);
             [mutableRequest setURL:[NSURL URLWithString:redirectUrl]];
         }else{
             NSString * ss = [NSString stringWithFormat:@"%@:",eDomain];
@@ -279,20 +310,11 @@
         }
         [mutableRequest setValue:eDomain forHTTPHeaderField:@"Referer"];
         [webView loadRequest:mutableRequest];
-        decisionHandler(WKNavigationActionPolicyAllow);//允许跳转
-    }
-    // H5的微信支付 唤起微信客户端 要执行的操作
-    NSURLRequest *request = navigationAction.request;
-    if ([request.URL.scheme isEqualToString:@"weixin"]) {
-        if ([request.URL.host isEqualToString:@"wap"]) {
-            if ([request.URL.relativePath containsString:@"/pay"]) {
-                NSDictionary * dic =[NSDictionary dictionary];
-                [[UIApplication sharedApplication] openURL:request.URL options:dic completionHandler:^(BOOL success) {
-                }];
-            }
+        if ([urlstr containsString: @"&redirect_url=http"]) {
+            decisionHandler(WKNavigationActionPolicyCancel);//不允许跳转
+        }else{
+            decisionHandler(WKNavigationActionPolicyAllow);//允许跳转
         }
-//        decisionHandler(WKNavigationActionPolicyAllow);
-        return;
     }
 }
 
@@ -405,6 +427,38 @@
     NSString *decodedString=(__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)str, CFSTR(""), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     
     return decodedString;
+}
+
+- (void)wxshare
+{
+    if (![WXApi isWXAppInstalled]){return;}
+
+    WXMediaMessage *urlMessage = [WXMediaMessage message];
+    NSString *title = @"葡悦汇";
+    urlMessage.title = title;
+    urlMessage.description = @"好酒";
+//    if ([self.shareDesc isKindOfClass:[NSString class]]) {
+//        urlMessage.description = self.shareDesc;
+//    }
+    //image = [UIImage imageWithData:imageData];
+    [urlMessage setThumbImage:[UIImage imageNamed:@"share"]];//分享图片,使用SDK的setThumbImage方法可压缩图片大小
+    
+    //创建多媒体对象
+    WXWebpageObject *webObj = [WXWebpageObject object];
+    webObj.webpageUrl =@"http://www.baidu.com";// [HFCommon checkString:[HFHTTPTool addLoginUserInfo:self.url]];//分享链接
+    urlMessage.mediaObject = webObj;
+    //创建发送对象实例
+    SendMessageToWXReq *sendReq = [[SendMessageToWXReq alloc] init];
+    sendReq.bText = NO;//不使用文本信息
+    sendReq.scene = WXSceneSession;//0 = 好友列表 1 = 朋友圈 2 = 收藏
+
+    sendReq.message = urlMessage;
+    
+    //发送分享信息
+    BOOL test = [WXApi sendReq:sendReq];
+    if (!test) {
+        NSLog(@"微信分享失败");
+    }
 }
 
 
