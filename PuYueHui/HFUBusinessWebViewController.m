@@ -21,6 +21,10 @@
 #define iphone5   (screenHeight == 568.0)
 #define iphone4   (screenHeight == 480.0)
 
+#define IS_IOS_9    floorf([[UIDevice currentDevice].systemVersion floatValue]) ==9.0 ? 1 : 0
+#define IS_IOS_10    floorf([[UIDevice currentDevice].systemVersion floatValue]) ==10.0 ? 1 : 0
+#define IS_IOS_11    floorf([[UIDevice currentDevice].systemVersion floatValue]) ==11.0 ? 1 : 0
+
 
 @interface HFUBusinessWebViewController ()<WKNavigationDelegate ,UINavigationControllerDelegate,SendScanDataDelegate,WKDelegate,WKScriptMessageHandler,FCImageHelperDelegate>
 {
@@ -75,31 +79,33 @@
     //    self.url = @"http://www.pureyeah.com/?from=singlemessage&isappinstalled=0";
     //    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.url]]];
     
-    __weak typeof(self) weakSelf = self;
-    BmobQuery *bquery = [BmobQuery queryWithClassName:@"barm"];
-    [bquery getObjectInBackgroundWithId:@"4KYh222T" block:^(BmobObject *object, NSError *error) {
-        
-        if (error) {
-            [weakSelf startWebView:NO];
-            return ;
-        }
-        if ([object objectForKey:@"tip"]) {
-            NSString *tips = [object objectForKey:@"tip"];
-            if ([tips isEqualToString:@"url"]) {
-                // 1. URL访问
-                [weakSelf startWebView:YES];
+    [self startWebView:NO];
 
-            }else{
-                // 1. html访问
-                [weakSelf startWebView:NO];
-
-            }
-        }else{
-            // 1. html访问
-            [weakSelf startWebView:NO];
-
-        }
-    }];
+//    __weak typeof(self) weakSelf = self;
+//    BmobQuery *bquery = [BmobQuery queryWithClassName:@"barm"];
+//    [bquery getObjectInBackgroundWithId:@"4KYh222T" block:^(BmobObject *object, NSError *error) {
+//        
+//        if (error) {
+//            [weakSelf startWebView:NO];
+//            return ;
+//        }
+//        if ([object objectForKey:@"tip"]) {
+//            NSString *tips = [object objectForKey:@"tip"];
+//            if ([tips isEqualToString:@"url"]) {
+//                // 1. URL访问
+//                [weakSelf startWebView:YES];
+//
+//            }else{
+//                // 1. html访问
+//                [weakSelf startWebView:NO];
+//
+//            }
+//        }else{
+//            // 1. html访问
+//            [weakSelf startWebView:NO];
+//
+//        }
+//    }];
 }
 
 - (void)startWebView:(BOOL)isUrl
@@ -261,11 +267,19 @@
     }else if([urlstr containsString:@"www.pureyeah.com://"] && urlstr.length ==19){
         decisionHandler(WKNavigationActionPolicyCancel);
         [webView goBack];
+//        NSString *jsStr = [NSString stringWithFormat:@"gotoSuccessPayResults()"];
+//        [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+//            NSLog(@"%@----%@",result, error);
+//        }];
         return;
         
     }else if([urlstr containsString:@"about:blank"] && urlstr.length ==11){
         decisionHandler(WKNavigationActionPolicyCancel);
         [webView goBack];
+//        NSString *jsStr = [NSString stringWithFormat:@"gotoSuccessPayResults()"];
+//        [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+//            NSLog(@"%@----%@",result, error);
+//        }];
         return;
     }
 

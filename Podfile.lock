@@ -38,7 +38,7 @@ DEPENDENCIES:
   - WechatOpenSDK
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/specs.git:
     - AFNetworking
     - BmobSDK
     - Bugly
@@ -56,4 +56,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f1dfd98c0a474366e9a496ee8e174efc768ddb56
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.5.3
