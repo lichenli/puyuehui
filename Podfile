@@ -8,5 +8,6 @@ pod 'MBProgressHUD', '~> 0.9.1'
 pod 'BmobSDK'
 pod 'Bugly'              #2.8.0
 pod 'WechatOpenSDK'
+pod 'GTSDK',  '2.2.0.0' # 上次使用版本 '1.6.2.0'
 
 end

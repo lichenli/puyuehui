@@ -12,6 +12,7 @@
 #import "WKDelegateController.h"
 #import "FCImageHelper.h"
 #import "WXApi.h"
+#import <AFNetworking.h>
 
 #define screenWidth [UIScreen mainScreen].bounds.size.width
 #define screenHeight [UIScreen mainScreen].bounds.size.height
@@ -44,7 +45,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"葡悦汇红酒商城";
-  
+    
     WKWebViewConfiguration * configuration = [[WKWebViewConfiguration alloc]init];
     userContentController =[[WKUserContentController alloc]init];
     configuration.userContentController = userContentController;
@@ -68,6 +69,10 @@
     webView.navigationDelegate = self;
     webView.scrollView.bounces = NO;
     [self.view addSubview:webView];
+    
+    // 注册一个推送通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapNots:) name:@"GeTui" object:nil];
+
 
 //    NSString *path = [[NSBundle mainBundle] pathForResource:@"talkingdata" ofType:@"html"];
     
@@ -119,6 +124,17 @@
         NSURL *fileURL = [NSURL fileURLWithPath:path];
         [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
     }
+}
+
+// 收到推送消息 打开页面
+-(void)tapNots:(NSNotification *)dic{
+    NSMutableDictionary *data = (NSMutableDictionary *)dic.userInfo;
+    NSString *tag = [data valueForKey:@"ex"];
+
+    UIAlertController * alert = [UIAlertController alertControllerWithTitle:tag message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction * ok = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+    [alert addAction:ok];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)gotoScan
@@ -354,8 +370,6 @@
 
 - (void)didFinishPickingImage:(UIImage *)image{
     NSLog(@"图片获取成功");
-    
-
     __weak typeof(self) weakSelf = self;
     // 图片上传
     [FCImageHelper uploadImgWithImage:image withToken:self.tokenStr success:^(NSString *message, NSString *imgUrlStr) {
@@ -475,5 +489,77 @@
     }
 }
 
+// 检查升级
+
+- (void)versionUpdate
+{
+    NSDictionary *infoDic=[[NSBundle mainBundle] infoDictionary];
+    NSString *currentVersion=infoDic[@"CFBundleShortVersionString"];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager POST:[NSString stringWithFormat:@"https://itunes.apple.com/lookup?id=%@",@"1449590645"] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        if (![responseObject isKindOfClass:[NSDictionary class]]) {
+            return;
+        }
+        NSArray *array = responseObject[@"results"];
+        if (![array isKindOfClass:[NSArray class]]) {
+            return;
+        }
+        if (array.count <1) {
+            return;
+        }
+        NSDictionary *dict = [array lastObject];
+        if (![dict isKindOfClass:[NSDictionary class]]) {
+            return;
+        }
+        NSString *appStoreVersion = dict[@"version"];
+        NSDictionary *infoDic=[[NSBundle mainBundle] infoDictionary];
+        NSString *currentVersion=infoDic[@"CFBundleShortVersionString"];
+        if([appStoreVersion compare:currentVersion options:NSNumericSearch] == NSOrderedDescending)
+        {
+            NSLog(@"App Store版本%@", appStoreVersion);
+            [weakSelf gotoupdate];
+            
+        }else{
+            NSLog(@"当前版本1111 %@",currentVersion);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSLog(@"当前版本2222 %@",currentVersion);
+    }];
+}
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self versionUpdate];
+}
+
+- (void)gotoupdate
+{
+    UIAlertController * alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"葡悦汇有新版本啦，去App Store更新"] message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction * ok = [UIAlertAction actionWithTitle:@"下次再说" style:UIAlertActionStyleDefault handler:nil];
+    UIAlertAction * update = [UIAlertAction actionWithTitle:@"更新" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        //跳转到App Store
+        // https://itunes.apple.com/cn/app/%E8%91%A1%E6%82%A6%E6%B1%87/id1449590645?mt=8
+        NSString *urlStr = [NSString stringWithFormat:@"itms-apps://itunes.apple.com/cn/app/id%@?mt=8",@"1449590645"];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlStr] options:@{} completionHandler:nil];
+    }];
+    [alert addAction:ok];
+    [alert addAction:update];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+#pragma mark 微信登录
+
+// 点击微信登录
+- (void)wechatBtnAction:(UIButton *)sender {
+    SendAuthReq* request = [[SendAuthReq alloc] init];
+    
+    request.state = @"wx_oauth2_authorization_state";
+    request.scope = @"snsapi_userinfo";
+    
+    [WXApi sendReq: request];
+}
 
 @end

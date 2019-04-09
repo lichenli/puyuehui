@@ -12,6 +12,8 @@
 		DB53976121E475F500BE6446 /* UIImage+FC.m in Sources */ = {isa = PBXBuildFile; fileRef = DB53975F21E475F500BE6446 /* UIImage+FC.m */; };
 		DB53976221E475F500BE6446 /* FCImageHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DB53976021E475F500BE6446 /* FCImageHelper.m */; };
 		DB53976521E4763C00BE6446 /* ImageSelectVC.m in Sources */ = {isa = PBXBuildFile; fileRef = DB53976421E4763C00BE6446 /* ImageSelectVC.m */; };
+		DBBD428F225C87F7002284F0 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = DBBD428C225C87F7002284F0 /* README.txt */; };
+		DBBD4290225C87F7002284F0 /* libWeChatSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBD428E225C87F7002284F0 /* libWeChatSDK.a */; };
 		DBC8D68521DC9AAB000AD110 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DBC8D68421DC9AAB000AD110 /* AppDelegate.m */; };
 		DBC8D68821DC9AAB000AD110 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DBC8D68721DC9AAB000AD110 /* ViewController.m */; };
 		DBC8D68B21DC9AAB000AD110 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DBC8D68921DC9AAB000AD110 /* Main.storyboard */; };
@@ -68,6 +70,12 @@
 		DB53976321E4763C00BE6446 /* ImageSelectVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageSelectVC.h; sourceTree = "<group>"; };
 		DB53976421E4763C00BE6446 /* ImageSelectVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImageSelectVC.m; sourceTree = "<group>"; };
 		DB709CA021F5A2BA00CE3C66 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		DBBD4288225C48FB002284F0 /* PuYueHui.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PuYueHui.entitlements; sourceTree = "<group>"; };
+		DBBD428A225C87F7002284F0 /* WXApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApi.h; sourceTree = "<group>"; };
+		DBBD428B225C87F7002284F0 /* WXApiObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApiObject.h; sourceTree = "<group>"; };
+		DBBD428C225C87F7002284F0 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		DBBD428D225C87F7002284F0 /* WechatAuthSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WechatAuthSDK.h; sourceTree = "<group>"; };
+		DBBD428E225C87F7002284F0 /* libWeChatSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libWeChatSDK.a; sourceTree = "<group>"; };
 		DBC8D68021DC9AAB000AD110 /* PuYueHui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PuYueHui.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC8D68321DC9AAB000AD110 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DBC8D68421DC9AAB000AD110 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -114,6 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DBBD4290225C87F7002284F0 /* libWeChatSDK.a in Frameworks */,
 				398894AFA3134D7ACFD7DA32 /* libPods-PuYueHui.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -163,6 +172,18 @@
 			path = Helper;
 			sourceTree = "<group>";
 		};
+		DBBD4289225C87F7002284F0 /* OpenSDK1.7.6 */ = {
+			isa = PBXGroup;
+			children = (
+				DBBD428A225C87F7002284F0 /* WXApi.h */,
+				DBBD428B225C87F7002284F0 /* WXApiObject.h */,
+				DBBD428C225C87F7002284F0 /* README.txt */,
+				DBBD428D225C87F7002284F0 /* WechatAuthSDK.h */,
+				DBBD428E225C87F7002284F0 /* libWeChatSDK.a */,
+			);
+			path = OpenSDK1.7.6;
+			sourceTree = "<group>";
+		};
 		DBC8D67721DC9AAB000AD110 = {
 			isa = PBXGroup;
 			children = (
@@ -189,6 +210,7 @@
 		DBC8D68221DC9AAB000AD110 /* PuYueHui */ = {
 			isa = PBXGroup;
 			children = (
+				DBBD4288225C48FB002284F0 /* PuYueHui.entitlements */,
 				DBC8D68321DC9AAB000AD110 /* AppDelegate.h */,
 				DBC8D68421DC9AAB000AD110 /* AppDelegate.m */,
 				DBC8D68621DC9AAB000AD110 /* ViewController.h */,
@@ -202,6 +224,7 @@
 				DB53976321E4763C00BE6446 /* ImageSelectVC.h */,
 				DB53976421E4763C00BE6446 /* ImageSelectVC.m */,
 				DBC8D6DC21DDB739000AD110 /* talkingdata.html */,
+				DBBD4289225C87F7002284F0 /* OpenSDK1.7.6 */,
 				DB53975C21E475F500BE6446 /* Helper */,
 				DBFC28C821E10A620084A1D6 /* wwws */,
 				DBC8D6D021DCB2AC000AD110 /* ZQScanTool */,
@@ -362,6 +385,11 @@
 				TargetAttributes = {
 					DBC8D67F21DC9AAB000AD110 = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					DBC8D69721DC9AAB000AD110 = {
 						CreatedOnToolsVersion = 10.1;
@@ -414,6 +442,7 @@
 				DBC8D68D21DC9AAB000AD110 /* Assets.xcassets in Resources */,
 				DBC8D6C521DC9B69000AD110 /* README.md in Resources */,
 				DBC8D6C421DC9B69000AD110 /* canvasResize.min.js in Resources */,
+				DBBD428F225C87F7002284F0 /* README.txt in Resources */,
 				DBC8D6C921DC9B69000AD110 /* demo.html in Resources */,
 				DBC8D68B21DC9AAB000AD110 /* Main.storyboard in Resources */,
 			);
@@ -642,19 +671,24 @@
 			baseConfigurationReference = 40DF3C9D9CD86607A91B87D0 /* Pods-PuYueHui.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PuYueHui/PuYueHui.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CFWD563VB2;
+				DEVELOPMENT_TEAM = NCA62D563J;
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/PuYueHui/PrefixHeader.pch";
 				INFOPLIST_FILE = PuYueHui/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.puyue.hui;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/PuYueHui/OpenSDK1.7.6",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cnhuafas.HFYouLife;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -666,19 +700,24 @@
 			baseConfigurationReference = 3C3603029A2A83D739B5CDC7 /* Pods-PuYueHui.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PuYueHui/PuYueHui.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = CFWD563VB2;
+				DEVELOPMENT_TEAM = NCA62D563J;
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/PuYueHui/PrefixHeader.pch";
 				INFOPLIST_FILE = PuYueHui/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.puyue.hui;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/PuYueHui/OpenSDK1.7.6",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cnhuafas.HFYouLife;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = 1;
