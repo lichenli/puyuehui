@@ -17,6 +17,9 @@
 #define GTAppKey @"zBFfLmMEyt6ABH4JUIJNM8"
 #define GTAppSecret @"EWRz9K8clg5qhzbAD03It9"
 
+#define WeiXIN_APPID        @"wx2903b340ba4f6118"
+
+
 #define SetUserDefaultsForKey(key,value)   [[NSUserDefaults standardUserDefaults] setObject:value forKey:key]
 #define GetUserDefaultsWithKey(key)  [[NSUserDefaults standardUserDefaults] objectForKey:key]
 
@@ -30,7 +33,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
     //向微信注册
-    [WXApi registerApp:@"wx2903b340ba4f6118"];
+    [WXApi registerApp:WeiXIN_APPID];
     // 4.云后台
     [Bmob registerWithAppKey:@"0849ad8a91a2b8549e5268e5cf77a44d"];
     // 5.腾讯bugly
@@ -47,6 +50,10 @@
     
     NSString *urlString = url.absoluteString;
     NSLog(@"*****   %@",urlString);
+    if ([urlString containsString:WeiXIN_APPID]) {
+        [WXApi handleOpenURL: url delegate: self];
+    }
+    
     return YES;
 }
 
@@ -239,20 +246,16 @@
 
 #pragma mark - WXApiDelegate
 - (void)onResp:(BaseResp *)resp {
-    if ([resp isKindOfClass: [SendAuthResp class]]) {
-        SendAuthResp* authResp = (SendAuthResp*)resp;
-        
-        if (authResp.errCode == 0) {
-            // User confirm authorization
-            [[NSNotificationCenter defaultCenter] postNotificationName: @"NOTI_WXLOGIN_AUTHORIZED"
-                                                                object: authResp.code];
-        } else {
-            // User cancel login
-            [[NSNotificationCenter defaultCenter] postNotificationName: @"NOTI_WXLOGIN_USERCANCELLED"
-                                                                object: nil];
+    if ([resp isKindOfClass:[SendAuthResp class]]) {   //授权登录的类。
+        if (resp.errCode == 0) {  //成功。
+            [[NSNotificationCenter defaultCenter] postNotificationName:HFWXLoginNotification object:resp];
+        }else{ //失败
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定",nil];
+            [alert show];
         }
     }
 }
+
 
 -(void)clearNotification{
     [UIApplication sharedApplication].applicationIconBadgeNumber = 1;

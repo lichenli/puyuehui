@@ -72,8 +72,10 @@
     
     // 注册一个推送通知
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapNots:) name:@"GeTui" object:nil];
+    // 注册一个微信登录通知
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(loginSuccessByCode:)name:HFWXLoginNotification object:nil];
 
-
+//    [self wechatBtnAction];
 //    NSString *path = [[NSBundle mainBundle] pathForResource:@"talkingdata" ofType:@"html"];
     
     
@@ -552,14 +554,114 @@
 
 #pragma mark 微信登录
 
+
+- (void)removeNoti {
+    [[NSNotificationCenter defaultCenter] removeObserver: self
+                                                    name: HFWXLoginNotification
+                                                  object: nil];
+}
+
 // 点击微信登录
-- (void)wechatBtnAction:(UIButton *)sender {
-    SendAuthReq* request = [[SendAuthReq alloc] init];
+- (void)wechatBtnAction{
     
-    request.state = @"wx_oauth2_authorization_state";
-    request.scope = @"snsapi_userinfo";
+    if ([WXApi isWXAppInstalled]) {
+        SendAuthReq *req = [[SendAuthReq alloc]init];
+        req.scope = @"snsapi_userinfo";
+        req.openID = WeiXIN_APPSecret;
+        req.state = @"1245";
+        [WXApi sendReq:req];
+    }else{
+        //把微信登录的按钮隐藏掉。
+    }
+}
+
+#pragma mark 微信登录回调。
+-(void)loginSuccessByCode:(id )sender{
+    SendAuthResp *resp = [sender object];
+    if (![resp isKindOfClass:[SendAuthResp class]]) {
+        return;
+    }
+    resp = (SendAuthResp *)resp;
+    NSString *code = resp.code;
+    if ([code isEqualToString:@""]) {
+        return;
+    }
+    __weak typeof(*&self) weakSelf = self;
     
-    [WXApi sendReq: request];
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];//请求
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];//响应
+    manager.securityPolicy.allowInvalidCertificates = YES;
+    manager.securityPolicy.validatesDomainName = NO;
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/html",@"application/json", @"text/json",@"text/plain", nil];
+    //通过 appid  secret 认证code . 来发送获取 access_token的请求
+    [manager GET:[NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",WeiXIN_APPID,WeiXIN_APPSecret,code] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        /*
+         access_token   接口调用凭证
+         expires_in access_token接口调用凭证超时时间，单位（秒）
+         refresh_token  用户刷新access_token
+         openid 授权用户唯一标识
+         scope  用户授权的作用域，使用逗号（,）分隔
+         unionid     当且仅当该移动应用已获得该用户的userinfo授权时，才会出现该字段
+         */
+        NSString* accessToken = [dic valueForKey:@"access_token"];
+        NSString* openID = [dic valueForKey:@"openid"];
+        [weakSelf requestUserInfoByToken:accessToken andOpenid:openID];
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        
+    }];
+}
+
+-(void)requestUserInfoByToken:(NSString *)token andOpenid:(NSString *)openID{
+    if ([token isEqualToString:@""] || [openID isEqualToString:@""]) {
+        //[MBProgressHUD showError:@"授权失败"];
+        NSLog(@"授权失败");
+        return;
+    }
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.securityPolicy.allowInvalidCertificates = YES;
+    manager.securityPolicy.validatesDomainName = NO;
+    [manager GET:[NSString stringWithFormat:@"https://api.weixin.qq.com/sns/userinfo?access_token=%@&openid=%@",token,openID] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        if (!responseObject || ![responseObject isKindOfClass:[NSData class]]) {
+            NSLog(@"授权失败");
+            return ;
+        }
+        NSString *str = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        if ([str isEqualToString:@""]) {
+            NSLog(@"授权失败");
+            return ;
+        }
+        NSDictionary *para = @{@"userinfo":str,@"appPlatform":@"IOS"};
+        [self verifyUnionid:para];
+        
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+
+    }];
+}
+/*
+ dic  ==== {
+ city = Zhuhai;
+ country = CN;
+ headimgurl = "http://wx.qlogo.cn/mmopen/1eJ6dbQNXeOjib4S2HY5lKdIIVEfMSIPq3NlnmrS98g0ztjes4Z6kH0reJib8jvShuibRxv42u8UjMP2HcLjR4K8pSLrZNO6VHg/0";
+ language = "zh_CN";
+ nickname = "\U58eb\U731b";
+ openid = "oSRgxwQQS5kSwiL6q3X9uZ-Y5Uzc";
+ privilege =     (
+ );
+ province = Guangdong;
+ sex = 1;
+ unionid = "owR_Qt46S8rRSTrKTHiCunrMMQjE";
+ }
+ 
+ */
+
+
+-(void)verifyUnionid:(NSDictionary *)para{
+    NSLog(@"授权成功  %@",para);
 }
 
 @end

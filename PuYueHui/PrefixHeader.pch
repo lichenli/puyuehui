@@ -19,12 +19,23 @@
 
 
     #define eDomain  @"www.pureyeah.cn"
+=
+
+    #define HFWXLoginNotification @"HFWXLoginNotification"
+
+    #define WeiXIN_APPID        @"wx2903b340ba4f6118"
+    #define WeiXIN_APPSecret @"602e10b8b6e99f65e270312f6a05d45e"
 
 
 #elif  Environment == 1
 
 
-   #define eDomain  @"www.pureyeah.com"
+    #define eDomain  @"www.pureyeah.com"
+
+    #define HFWXLoginNotification @"HFWXLoginNotification"
+
+    #define WeiXIN_APPID        @"wx2903b340ba4f6118"
+    #define WeiXIN_APPSecret @"602e10b8b6e99f65e270312f6a05d45e"
 
 
 #endif
