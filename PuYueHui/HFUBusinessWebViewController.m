@@ -56,6 +56,9 @@
     [userContentController addScriptMessageHandler:delegateController  name:@"QRScan"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"ImageUpload"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"WXshare"];//注册一个name为NativeEnv的js方法
+    [userContentController addScriptMessageHandler:delegateController  name:@"WXauthorize"];//注册一个name为NativeEnv的js方法
+
+    
     
     UIImage *image = [UIImage imageNamed:@"bgss"];
     self.view.layer.contents = (id) image.CGImage;    // 如果需要背景透明加上下面这句
@@ -131,12 +134,22 @@
 // 收到推送消息 打开页面
 -(void)tapNots:(NSNotification *)dic{
     NSMutableDictionary *data = (NSMutableDictionary *)dic.userInfo;
-    NSString *tag = [data valueForKey:@"ex"];
-
-    UIAlertController * alert = [UIAlertController alertControllerWithTitle:tag message:@"" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction * ok = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-    [alert addAction:ok];
-    [self presentViewController:alert animated:YES completion:nil];
+    if ([data valueForKey:@"ex"]) {
+        
+        NSString *tmps = [data valueForKey:@"ex"];
+        
+        if (tmps.length>0) {
+            NSString *jsStr = [NSString stringWithFormat:@"geTuiIos('%@')",tmps];
+            [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+                NSLog(@"%@----%@",result, error);
+            }];
+        }
+//
+//        UIAlertController * alert = [UIAlertController alertControllerWithTitle:tag message:@"" preferredStyle:UIAlertControllerStyleAlert];
+//        UIAlertAction * ok = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+//        [alert addAction:ok];
+//        [self presentViewController:alert animated:YES completion:nil];
+    }
 }
 
 - (void)gotoScan
@@ -367,6 +380,8 @@
                 _imageHelper.imagePickerDelelgate = self;
             }
         }
+    }else if([message.name isEqualToString:@"WXauthorize"]){
+        [self wechatBtnAction];
     }
 }
 
@@ -617,6 +632,10 @@
     if ([token isEqualToString:@""] || [openID isEqualToString:@""]) {
         //[MBProgressHUD showError:@"授权失败"];
         NSLog(@"授权失败");
+        NSString *jsStr = [NSString stringWithFormat:@"wxloginFail()"];
+        [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+            NSLog(@"%@----%@",result, error);
+        }];
         return;
     }
     
@@ -662,6 +681,29 @@
 
 -(void)verifyUnionid:(NSDictionary *)para{
     NSLog(@"授权成功  %@",para);
+    
+    NSString *jsStr = [NSString stringWithFormat:@"wxloginSucess('%@')",[self convertToJsonData:para]];
+    [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+        NSLog(@"%@----%@",result, error);
+    }];
 }
+
+-(NSString *)convertToJsonData:(NSDictionary *)dict{
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:&error];
+    NSString *jsonString;
+    if (!jsonData) {
+        NSLog(@"%@",error);
+    }else{
+        jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    NSMutableString *mutStr = [NSMutableString stringWithString:jsonString];
+    NSRange range = {0,jsonString.length};
+    [mutStr replaceOccurrencesOfString:@" " withString:@"" options:NSLiteralSearch range:range];
+    NSRange range2 = {0,mutStr.length};
+    [mutStr replaceOccurrencesOfString:@"\n" withString:@"" options:NSLiteralSearch range:range2];
+    return mutStr;
+}
+
 
 @end

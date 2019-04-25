@@ -17,6 +17,7 @@
 #define GTAppKey @"zBFfLmMEyt6ABH4JUIJNM8"
 #define GTAppSecret @"EWRz9K8clg5qhzbAD03It9"
 
+// 微信
 #define WeiXIN_APPID        @"wx2903b340ba4f6118"
 
 
