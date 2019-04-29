@@ -12,19 +12,19 @@
 #import <BmobSDK/Bmob.h>
 
 
-#define Environment   1   //  0 = QA  |   1 = PRD
+#define Environment   0   //  0 = QA  |   1 = PRD
 
 
 #if  Environment == 0
 
 
     #define eDomain  @"www.pureyeah.cn"
-=
+
 
     #define HFWXLoginNotification @"HFWXLoginNotification"
 
-    #define WeiXIN_APPID        @"wx2903b340ba4f6118"
-    #define WeiXIN_APPSecret @"602e10b8b6e99f65e270312f6a05d45e"
+    #define WeiXIN_APPID        @"wx5eab4e05e7abf200"
+    #define WeiXIN_APPSecret @"4bb9d0cd91b127d3c19db9a8bcd31614"
 
 
 #elif  Environment == 1
@@ -34,12 +34,21 @@
 
     #define HFWXLoginNotification @"HFWXLoginNotification"
 
-    #define WeiXIN_APPID        @"wx2903b340ba4f6118"
-    #define WeiXIN_APPSecret @"602e10b8b6e99f65e270312f6a05d45e"
+    #define WeiXIN_APPID        @"wx9af9ff713b25d6f2"
+    #define WeiXIN_APPSecret @"0858d904ba8393ab078b24a48600db79"
 
 
 #endif
 
+//测试：
+//appid: wx5eab4e05e7abf200
+//appsecret: 4bb9d0cd91b127d3c19db9a8bcd31614
+//
+//生产：
+//appid: wx9af9ff713b25d6f2
+//appsecret: 0858d904ba8393ab078b24a48600db79
 
+//#define WeiXIN_APPID        @"wx2903b340ba4f6118"
+//#define WeiXIN_APPSecret @"602e10b8b6e99f65e270312f6a05d45e"
 
 #endif /* PrefixHeader_pch */

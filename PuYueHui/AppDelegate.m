@@ -13,12 +13,16 @@
 #import <PushKit/PushKit.h>
 
 // 个推
-#define GTAppID @"XwwC5lnYU08ry7XdLJAYr7"
-#define GTAppKey @"zBFfLmMEyt6ABH4JUIJNM8"
-#define GTAppSecret @"EWRz9K8clg5qhzbAD03It9"
+//#define GTAppID @"XwwC5lnYU08ry7XdLJAYr7"
+//#define GTAppKey @"zBFfLmMEyt6ABH4JUIJNM8"
+//#define GTAppSecret @"EWRz9K8clg5qhzbAD03It9"
+
+#define GTAppID @"YZ1BT58AXb9Jk6ENyowez6"
+#define GTAppKey @"vnsNKakHTX61YB9HZWyqB8"
+#define GTAppSecret @"ClmzvhLHGU6h3N400u7rV6"
 
 // 微信
-#define WeiXIN_APPID        @"wx2903b340ba4f6118"
+//#define WeiXIN_APPID        @"wx2903b340ba4f6118"
 
 
 #define SetUserDefaultsForKey(key,value)   [[NSUserDefaults standardUserDefaults] setObject:value forKey:key]

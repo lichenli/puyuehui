@@ -681,11 +681,13 @@
 
 -(void)verifyUnionid:(NSDictionary *)para{
     NSLog(@"授权成功  %@",para);
-    
-    NSString *jsStr = [NSString stringWithFormat:@"wxloginSucess('%@')",[self convertToJsonData:para]];
-    [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-        NSLog(@"%@----%@",result, error);
-    }];
+    if ([para objectForKey:@"openid"]) {
+        NSString * openid = [para objectForKey:@"openid"];
+        NSString *jsStr = [NSString stringWithFormat:@"wechatLoginOpenid('%@','flg')",openid];
+        [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+            NSLog(@"%@----%@",result, error);
+        }];
+    }
 }
 
 -(NSString *)convertToJsonData:(NSDictionary *)dict{
