@@ -5,7 +5,7 @@
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>zh_CN</string>
 	<key>CFBundleDevelopmentRegion - 2</key>
 	<string>zh_CN</string>
 	<key>CFBundleExecutable</key>
@@ -49,7 +49,27 @@
 			<string>wexin</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>wx2903b340ba4f6118</string>
+				<string>wx88</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>wexitest</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wx5eab4e05e7abf200</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>weixinprd</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wx9af9ff713b25d6f2</string>
 			</array>
 		</dict>
 	</array>

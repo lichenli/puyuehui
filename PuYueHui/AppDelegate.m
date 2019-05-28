@@ -13,17 +13,13 @@
 #import <PushKit/PushKit.h>
 
 // 个推
-//#define GTAppID @"XwwC5lnYU08ry7XdLJAYr7"
+//#define GTAppID @"XwwC5lnYU08ry7XdLJAYr7"   //me
 //#define GTAppKey @"zBFfLmMEyt6ABH4JUIJNM8"
 //#define GTAppSecret @"EWRz9K8clg5qhzbAD03It9"
 
 #define GTAppID @"YZ1BT58AXb9Jk6ENyowez6"
 #define GTAppKey @"vnsNKakHTX61YB9HZWyqB8"
 #define GTAppSecret @"ClmzvhLHGU6h3N400u7rV6"
-
-// 微信
-//#define WeiXIN_APPID        @"wx2903b340ba4f6118"
-
 
 #define SetUserDefaultsForKey(key,value)   [[NSUserDefaults standardUserDefaults] setObject:value forKey:key]
 #define GetUserDefaultsWithKey(key)  [[NSUserDefaults standardUserDefaults] objectForKey:key]
@@ -33,8 +29,6 @@
 @end
 
 @implementation AppDelegate
-
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
     //向微信注册
@@ -58,7 +52,6 @@
     if ([urlString containsString:WeiXIN_APPID]) {
         [WXApi handleOpenURL: url delegate: self];
     }
-    
     return YES;
 }
 
@@ -66,14 +59,6 @@
 
 /** 注册远程通知 */
 - (void)registerRemoteNotification {
-    /*
-     警告：Xcode8的需要手动开启“TARGETS -> Capabilities -> Push Notifications”
-     */
-    
-    /*
-     警告：该方法需要开发者自定义，以下代码根据APP支持的iOS系统不同，代码可以对应修改。
-     以下为演示代码，注意根据实际需要修改，注意测试支持的iOS系统都能获取到DeviceToken
-     */
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 // Xcode 8编译会调用
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -105,7 +90,6 @@
 }
 
 #pragma mark - 远程通知(推送)回调
-
 /** 远程通知注册成功委托 */
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];

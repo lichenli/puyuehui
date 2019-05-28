@@ -37,6 +37,7 @@
 @property (nonatomic, strong)NSString *tokenStr;
 
 @property (nonatomic, strong)NSString * nexturl;
+@property (nonatomic, weak)UIButton * closeBtn;  //关闭按钮
 
 @end
 
@@ -57,8 +58,7 @@
     [userContentController addScriptMessageHandler:delegateController  name:@"ImageUpload"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"WXshare"];//注册一个name为NativeEnv的js方法
     [userContentController addScriptMessageHandler:delegateController  name:@"WXauthorize"];//注册一个name为NativeEnv的js方法
-
-    
+    [userContentController addScriptMessageHandler:delegateController  name:@"callPhoneNum"];//注册一个name为NativeEnv的js方法
     
     UIImage *image = [UIImage imageNamed:@"bgss"];
     self.view.layer.contents = (id) image.CGImage;    // 如果需要背景透明加上下面这句
@@ -78,10 +78,7 @@
     // 注册一个微信登录通知
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(loginSuccessByCode:)name:HFWXLoginNotification object:nil];
 
-//    [self wechatBtnAction];
 //    NSString *path = [[NSBundle mainBundle] pathForResource:@"talkingdata" ofType:@"html"];
-    
-    
 //    NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
 //    NSURL *fileURL = [NSURL fileURLWithPath:path];
 //    [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
@@ -116,7 +113,15 @@
 //
 //        }
 //    }];
+    
+    UIButton *cancleBtn = [[UIButton alloc] initWithFrame:CGRectMake(24, 44, 22, 22)];
+    [cancleBtn setImage:[UIImage imageNamed:@"cancel"] forState:UIControlStateNormal];
+    [cancleBtn addTarget:self action:@selector(goBack) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:cancleBtn];
+    self.closeBtn = cancleBtn;
+    self.closeBtn.hidden = YES;
 }
+
 
 - (void)startWebView:(BOOL)isUrl
 {
@@ -144,11 +149,6 @@
                 NSLog(@"%@----%@",result, error);
             }];
         }
-//
-//        UIAlertController * alert = [UIAlertController alertControllerWithTitle:tag message:@"" preferredStyle:UIAlertControllerStyleAlert];
-//        UIAlertAction * ok = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-//        [alert addAction:ok];
-//        [self presentViewController:alert animated:YES completion:nil];
     }
 }
 
@@ -227,44 +227,33 @@
 
 //加载完成
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
-//    NSLog(@"加载完成");
-    //加载完成后隐藏progressView
     self.progressView.hidden = YES;
-//    [webView.scrollView.mj_header endRefreshing];
 }
 
 //加载失败
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     NSLog(@"加载失败");
-//    NSString *path = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"wwws"];
-//    NSURL *fileURL = [NSURL fileURLWithPath:path];
-//    [webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
-    //加载失败同样需要隐藏progressView
     self.progressView.hidden = YES;
-//    [webView.scrollView.mj_header endRefreshing];
-//    if ([Reachability reachabilityForInternetConnection].currentReachabilityStatus == NotReachable) {
-//        [self.view addSubview:[HFCommon noNetWorkView:nil]];
-//    }
 }
 
 - (void)dealloc {
     NSLog(@"网页页面消失");
     [self clearCache];
-//    [webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
 -(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error{
     
     self.progressView.hidden = YES;
-//    [webView.scrollView.mj_header endRefreshing];
-//    if ([Reachability reachabilityForInternetConnection].currentReachabilityStatus == NotReachable) {
-//        [self.view addSubview:[HFCommon noNetWorkView:nil]];
-//    }
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    
-    
+    NSString * urlstr=navigationAction.request.URL.absoluteString;
+    NSLog(@"当前访问页面  :  %@  %lu",[self URLDecodedString:urlstr],(unsigned long)[self URLDecodedString:urlstr].length);
+    if ([[self URLDecodedString:urlstr] containsString:@"player.youku.com/"] || [[self URLDecodedString:urlstr] containsString:@"v.qq.com/x"]) {
+        self.closeBtn.hidden = NO;
+    }else{
+        self.closeBtn.hidden = YES;
+    }
     // 1. 支付宝
     if ([navigationAction.request.URL.absoluteString containsString:@"alipay://"]){// 支付宝
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -281,15 +270,12 @@
         return;
 
     }
-    
-    NSString * urlstr=navigationAction.request.URL.absoluteString;
-    NSLog(@"当前访问页面  :  %@  %lu",[self URLDecodedString:urlstr],(unsigned long)[self URLDecodedString:urlstr].length);
+
     // H5的微信支付 唤起微信客户端 要执行的操作
     NSURLRequest *request = navigationAction.request;
     if ([request.URL.scheme isEqualToString:@"weixin"]) {
         if ([request.URL.host isEqualToString:@"wap"]) {
             if ([request.URL.relativePath containsString:@"/pay"]) {
-//                NSDictionary * dic =[NSDictionary dictionary];
                 [[UIApplication sharedApplication] openURL:request.URL];
             }
         }
@@ -307,10 +293,6 @@
     }else if([urlstr containsString:@"about:blank"] && urlstr.length ==11){
         decisionHandler(WKNavigationActionPolicyCancel);
         [webView goBack];
-//        NSString *jsStr = [NSString stringWithFormat:@"gotoSuccessPayResults()"];
-//        [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-//            NSLog(@"%@----%@",result, error);
-//        }];
         return;
     }
 
@@ -382,6 +364,14 @@
         }
     }else if([message.name isEqualToString:@"WXauthorize"]){
         [self wechatBtnAction];
+    }else if ([message.name isEqualToString:@"callPhoneNum"]){
+        NSDictionary * dic = (NSDictionary*)message.body;
+        if ([dic objectForKey:@"tel"]) {
+            NSString * tel = [dic objectForKey:@"tel"];
+            NSMutableString * str= [[NSMutableString alloc] initWithFormat:@"telprompt:%@",tel];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
+
+        }
     }
 }
 
@@ -482,10 +472,6 @@
     NSString *title = @"葡悦汇";
     urlMessage.title = title;
     urlMessage.description = @"好酒";
-//    if ([self.shareDesc isKindOfClass:[NSString class]]) {
-//        urlMessage.description = self.shareDesc;
-//    }
-    //image = [UIImage imageWithData:imageData];
     [urlMessage setThumbImage:[UIImage imageNamed:@"share"]];//分享图片,使用SDK的setThumbImage方法可压缩图片大小
     
     //创建多媒体对象
@@ -496,9 +482,7 @@
     SendMessageToWXReq *sendReq = [[SendMessageToWXReq alloc] init];
     sendReq.bText = NO;//不使用文本信息
     sendReq.scene = WXSceneSession;//0 = 好友列表 1 = 朋友圈 2 = 收藏
-
     sendReq.message = urlMessage;
-    
     //发送分享信息
     BOOL test = [WXApi sendReq:sendReq];
     if (!test) {
@@ -568,8 +552,6 @@
 }
 
 #pragma mark 微信登录
-
-
 - (void)removeNoti {
     [[NSNotificationCenter defaultCenter] removeObserver: self
                                                     name: HFWXLoginNotification
@@ -630,7 +612,6 @@
 
 -(void)requestUserInfoByToken:(NSString *)token andOpenid:(NSString *)openID{
     if ([token isEqualToString:@""] || [openID isEqualToString:@""]) {
-        //[MBProgressHUD showError:@"授权失败"];
         NSLog(@"授权失败");
         NSString *jsStr = [NSString stringWithFormat:@"wxloginFail()"];
         [webView evaluateJavaScript:jsStr completionHandler:^(id _Nullable result, NSError * _Nullable error) {
@@ -661,22 +642,6 @@
 
     }];
 }
-/*
- dic  ==== {
- city = Zhuhai;
- country = CN;
- headimgurl = "http://wx.qlogo.cn/mmopen/1eJ6dbQNXeOjib4S2HY5lKdIIVEfMSIPq3NlnmrS98g0ztjes4Z6kH0reJib8jvShuibRxv42u8UjMP2HcLjR4K8pSLrZNO6VHg/0";
- language = "zh_CN";
- nickname = "\U58eb\U731b";
- openid = "oSRgxwQQS5kSwiL6q3X9uZ-Y5Uzc";
- privilege =     (
- );
- province = Guangdong;
- sex = 1;
- unionid = "owR_Qt46S8rRSTrKTHiCunrMMQjE";
- }
- 
- */
 
 
 -(void)verifyUnionid:(NSDictionary *)para{
